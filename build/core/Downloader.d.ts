@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import { CookieJar } from 'request';
 import { MultipleBar } from '../helpers';
 import { DownloaderConstructor, PostCollector, DownloadParams, Headers } from '../types';

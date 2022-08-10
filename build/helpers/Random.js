@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeid = (len) => {
+exports.makeVerifyFp = exports.makeidHex = exports.makeid = void 0;
+const makeid = (len) => {
     let text = '';
     const char_list = '0123456789';
     for (let i = 0; i < len; i += 1) {
@@ -8,7 +9,8 @@ exports.makeid = (len) => {
     }
     return text;
 };
-exports.makeidHex = (len) => {
+exports.makeid = makeid;
+const makeidHex = (len) => {
     let text = '';
     const char_list = '0123456789abcdef';
     for (let i = 0; i < len; i += 1) {
@@ -16,7 +18,8 @@ exports.makeidHex = (len) => {
     }
     return text;
 };
-exports.makeVerifyFp = () => {
+exports.makeidHex = makeidHex;
+const makeVerifyFp = () => {
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const charlen = chars.length;
     const time = Buffer.from(new Date().getTime().toString()).toString('base64');
@@ -29,3 +32,4 @@ exports.makeVerifyFp = () => {
     const str = arr.map(x => (x === '0' ? chars.charAt(Math.floor(Math.random() * charlen)) : x)).join('');
     return `verify_${time.toLowerCase()}_${str}`;
 };
+exports.makeVerifyFp = makeVerifyFp;

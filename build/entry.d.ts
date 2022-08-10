@@ -1,9 +1,9 @@
 import { TikTokScraper } from './core';
 import { Options, Result, UserMetadata, HashtagMetadata, HistoryItem, MusicMetadata } from './types';
-export declare const hashtag: (input: string, options?: Options | undefined) => Promise<Result>;
-export declare const user: (input: string, options?: Options | undefined) => Promise<Result>;
-export declare const trend: (input: string, options?: Options | undefined) => Promise<Result>;
-export declare const music: (input: string, options?: Options | undefined) => Promise<Result>;
+export declare const hashtag: (input: string, options?: Options) => Promise<Result>;
+export declare const user: (input: string, options?: Options) => Promise<Result>;
+export declare const trend: (input: string, options?: Options) => Promise<Result>;
+export declare const music: (input: string, options?: Options) => Promise<Result>;
 export declare const hashtagEvent: (input: string, options: Options) => TikTokScraper;
 export declare const userEvent: (input: string, options: Options) => TikTokScraper;
 export declare const musicEvent: (input: string, options: Options) => TikTokScraper;

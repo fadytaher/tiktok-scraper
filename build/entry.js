@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.fromfile = exports.history = exports.video = exports.getVideoMeta = exports.signUrl = exports.getUserProfileInfo = exports.getMusicInfo = exports.getHashtagInfo = exports.trendEvent = exports.musicEvent = exports.userEvent = exports.hashtagEvent = exports.music = exports.trend = exports.user = exports.hashtag = void 0;
 const os_1 = require("os");
 const fs_1 = require("fs");
 const bluebird_1 = require("bluebird");
@@ -29,7 +30,7 @@ const getInitOptions = () => {
         timeout: 0,
         tac: '',
         signature: '',
-        verifyFp: helpers_1.makeVerifyFp(),
+        verifyFp: (0, helpers_1.makeVerifyFp)(),
         headers: {
             'user-agent': constant_1.default.userAgent(),
             referer: 'https://www.tiktok.com/',
@@ -38,7 +39,7 @@ const getInitOptions = () => {
 };
 const proxyFromFile = async (file) => {
     try {
-        const data = (await bluebird_1.fromCallback(cb => fs_1.readFile(file, { encoding: 'utf-8' }, cb)));
+        const data = (await (0, bluebird_1.fromCallback)(cb => (0, fs_1.readFile)(file, { encoding: 'utf-8' }, cb)));
         const proxyList = data.split('\n');
         if (!proxyList.length) {
             throw new Error('Proxy file is empty');
@@ -51,7 +52,7 @@ const proxyFromFile = async (file) => {
 };
 const sessionFromFile = async (file) => {
     try {
-        const data = (await bluebird_1.fromCallback(cb => fs_1.readFile(file, { encoding: 'utf-8' }, cb)));
+        const data = (await (0, bluebird_1.fromCallback)(cb => (0, fs_1.readFile)(file, { encoding: 'utf-8' }, cb)));
         const proxyList = data.split('\n');
         if (!proxyList.length || proxyList[0] === '') {
             throw new Error('Session file is empty');
@@ -84,15 +85,23 @@ const eventScraper = (input, type, options = {}) => {
     const contructor = Object.assign(Object.assign(Object.assign({}, getInitOptions()), options), { type, input, event: true });
     return new core_1.TikTokScraper(contructor);
 };
-exports.hashtag = async (input, options) => promiseScraper(input, 'hashtag', options);
-exports.user = async (input, options) => promiseScraper(input, 'user', options);
-exports.trend = async (input, options) => promiseScraper(input, 'trend', options);
-exports.music = async (input, options) => promiseScraper(input, 'music', options);
-exports.hashtagEvent = (input, options) => eventScraper(input, 'hashtag', options);
-exports.userEvent = (input, options) => eventScraper(input, 'user', options);
-exports.musicEvent = (input, options) => eventScraper(input, 'music', options);
-exports.trendEvent = (input, options) => eventScraper(input, 'trend', options);
-exports.getHashtagInfo = async (input, options = {}) => {
+const hashtag = async (input, options) => promiseScraper(input, 'hashtag', options);
+exports.hashtag = hashtag;
+const user = async (input, options) => promiseScraper(input, 'user', options);
+exports.user = user;
+const trend = async (input, options) => promiseScraper(input, 'trend', options);
+exports.trend = trend;
+const music = async (input, options) => promiseScraper(input, 'music', options);
+exports.music = music;
+const hashtagEvent = (input, options) => eventScraper(input, 'hashtag', options);
+exports.hashtagEvent = hashtagEvent;
+const userEvent = (input, options) => eventScraper(input, 'user', options);
+exports.userEvent = userEvent;
+const musicEvent = (input, options) => eventScraper(input, 'music', options);
+exports.musicEvent = musicEvent;
+const trendEvent = (input, options) => eventScraper(input, 'trend', options);
+exports.trendEvent = trendEvent;
+const getHashtagInfo = async (input, options = {}) => {
     if (options && typeof options !== 'object') {
         throw new TypeError('Object is expected');
     }
@@ -107,7 +116,8 @@ exports.getHashtagInfo = async (input, options = {}) => {
     const result = await scraper.getHashtagInfo();
     return result;
 };
-exports.getMusicInfo = async (input, options = {}) => {
+exports.getHashtagInfo = getHashtagInfo;
+const getMusicInfo = async (input, options = {}) => {
     if (options && typeof options !== 'object') {
         throw new TypeError('Object is expected');
     }
@@ -122,7 +132,8 @@ exports.getMusicInfo = async (input, options = {}) => {
     const result = await scraper.getMusicInfo();
     return result;
 };
-exports.getUserProfileInfo = async (input, options = {}) => {
+exports.getMusicInfo = getMusicInfo;
+const getUserProfileInfo = async (input, options = {}) => {
     if (options && typeof options !== 'object') {
         throw new TypeError('Object is expected');
     }
@@ -137,7 +148,8 @@ exports.getUserProfileInfo = async (input, options = {}) => {
     const result = await scraper.getUserProfileInfo();
     return result;
 };
-exports.signUrl = async (input, options = {}) => {
+exports.getUserProfileInfo = getUserProfileInfo;
+const signUrl = async (input, options = {}) => {
     if (options && typeof options !== 'object') {
         throw new TypeError('Object is expected');
     }
@@ -152,7 +164,8 @@ exports.signUrl = async (input, options = {}) => {
     const result = await scraper.signUrl();
     return result;
 };
-exports.getVideoMeta = async (input, options = {}) => {
+exports.signUrl = signUrl;
+const getVideoMeta = async (input, options = {}) => {
     if (options && typeof options !== 'object') {
         throw new TypeError('Object is expected');
     }
@@ -171,7 +184,8 @@ exports.getVideoMeta = async (input, options = {}) => {
         collector: [result],
     };
 };
-exports.video = async (input, options = {}) => {
+exports.getVideoMeta = getVideoMeta;
+const video = async (input, options = {}) => {
     if (options && typeof options !== 'object') {
         throw new TypeError('Object is expected');
     }
@@ -200,11 +214,12 @@ exports.video = async (input, options = {}) => {
     }
     return Object.assign(Object.assign({}, ((options === null || options === void 0 ? void 0 : options.download) ? { message: `Video location: ${contructor.filepath}/${result.id}.mp4` } : {})), outputMessage);
 };
-exports.history = async (input, options = {}) => {
+exports.video = video;
+const history = async (input, options = {}) => {
     let store;
-    const historyPath = process.env.SCRAPING_FROM_DOCKER ? '/usr/app/files' : (options === null || options === void 0 ? void 0 : options.historyPath) || os_1.tmpdir();
+    const historyPath = process.env.SCRAPING_FROM_DOCKER ? '/usr/app/files' : (options === null || options === void 0 ? void 0 : options.historyPath) || (0, os_1.tmpdir)();
     try {
-        store = (await bluebird_1.fromCallback(cb => fs_1.readFile(`${historyPath}/tiktok_history.json`, { encoding: 'utf-8' }, cb)));
+        store = (await (0, bluebird_1.fromCallback)(cb => (0, fs_1.readFile)(`${historyPath}/tiktok_history.json`, { encoding: 'utf-8' }, cb)));
     }
     catch (error) {
         throw `History file doesn't exist`;
@@ -216,18 +231,18 @@ exports.history = async (input, options = {}) => {
         if (type === 'all') {
             const remove = [];
             for (const key of Object.keys(historyStore)) {
-                remove.push(bluebird_1.fromCallback(cb => fs_1.unlink(historyStore[key].file_location, cb)));
+                remove.push((0, bluebird_1.fromCallback)(cb => (0, fs_1.unlink)(historyStore[key].file_location, cb)));
             }
-            remove.push(bluebird_1.fromCallback(cb => fs_1.unlink(`${historyPath}/tiktok_history.json`, cb)));
+            remove.push((0, bluebird_1.fromCallback)(cb => (0, fs_1.unlink)(`${historyPath}/tiktok_history.json`, cb)));
             await Promise.all(remove);
             return { message: `History was completely removed` };
         }
         const key = type !== 'trend' ? options.remove.replace(':', '_') : 'trend';
         if (historyStore[key]) {
             const historyFile = historyStore[key].file_location;
-            await bluebird_1.fromCallback(cb => fs_1.unlink(historyFile, cb));
+            await (0, bluebird_1.fromCallback)(cb => (0, fs_1.unlink)(historyFile, cb));
             delete historyStore[key];
-            await bluebird_1.fromCallback(cb => fs_1.writeFile(`${historyPath}/tiktok_history.json`, JSON.stringify(historyStore), cb));
+            await (0, bluebird_1.fromCallback)(cb => (0, fs_1.writeFile)(`${historyPath}/tiktok_history.json`, JSON.stringify(historyStore), cb));
             return { message: `Record ${key} was removed` };
         }
         throw `Can't find record: ${key.split('_').join(' ')}`;
@@ -238,15 +253,16 @@ exports.history = async (input, options = {}) => {
     }
     return { table };
 };
+exports.history = history;
 const batchProcessor = (batch, options = {}) => {
     return new Promise(resolve => {
         console.log('TikTok Bulk Scraping Started');
         const result = [];
-        async_1.forEachLimit(batch, options.asyncBulk || 5, async (item) => {
+        (0, async_1.forEachLimit)(batch, options.asyncBulk || 5, async (item) => {
             switch (item.type) {
                 case 'user':
                     try {
-                        const output = await exports.user(item.input, Object.assign({ bulk: true }, options));
+                        const output = await (0, exports.user)(item.input, Object.assign({ bulk: true }, options));
                         result.push({ type: item.type, input: item.input, completed: true, scraped: output.collector.length });
                         console.log(`Scraping completed: ${item.type} ${item.input}`);
                     }
@@ -257,7 +273,7 @@ const batchProcessor = (batch, options = {}) => {
                     break;
                 case 'hashtag':
                     try {
-                        const output = await exports.hashtag(item.input, Object.assign({ bulk: true }, options));
+                        const output = await (0, exports.hashtag)(item.input, Object.assign({ bulk: true }, options));
                         result.push({ type: item.type, input: item.input, completed: true, scraped: output.collector.length });
                         console.log(`Scraping completed: ${item.type} ${item.input}`);
                     }
@@ -268,7 +284,7 @@ const batchProcessor = (batch, options = {}) => {
                     break;
                 case 'video':
                     try {
-                        await exports.video(item.input, options);
+                        await (0, exports.video)(item.input, options);
                         result.push({ type: item.type, input: item.input, completed: true });
                         console.log(`Scraping completed: ${item.type} ${item.input}`);
                     }
@@ -279,7 +295,7 @@ const batchProcessor = (batch, options = {}) => {
                     break;
                 case 'music':
                     try {
-                        const output = await exports.music(item.input, Object.assign({ bulk: true }, options));
+                        const output = await (0, exports.music)(item.input, Object.assign({ bulk: true }, options));
                         result.push({ type: item.type, input: item.input, completed: true, scraped: output.collector.length });
                         console.log(`Scraping completed: ${item.type} ${item.input}`);
                     }
@@ -296,10 +312,10 @@ const batchProcessor = (batch, options = {}) => {
         });
     });
 };
-exports.fromfile = async (input, options = {}) => {
+const fromfile = async (input, options = {}) => {
     let inputFile;
     try {
-        inputFile = (await bluebird_1.fromCallback(cb => fs_1.readFile(input, { encoding: 'utf-8' }, cb)));
+        inputFile = (await (0, bluebird_1.fromCallback)(cb => (0, fs_1.readFile)(input, { encoding: 'utf-8' }, cb)));
     }
     catch (error) {
         throw `Can't find fle: ${input}`;
@@ -354,3 +370,4 @@ exports.fromfile = async (input, options = {}) => {
     const result = await batchProcessor(batch, options);
     return { table: result };
 };
+exports.fromfile = fromfile;
