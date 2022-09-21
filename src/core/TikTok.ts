@@ -130,6 +130,8 @@ export class TikTokScraper extends EventEmitter {
 
     public cookieJar: CookieJar;
 
+    public releaseVersion: string;
+
     constructor({
         download,
         filepath,
@@ -224,6 +226,7 @@ export class TikTokScraper extends EventEmitter {
             bad: 0,
         };
         this.store = [];
+        this.releaseVersion = "running version is 3.0"
     }
 
     /**
@@ -316,6 +319,7 @@ export class TikTokScraper extends EventEmitter {
     }
 
     /**
+     * core request function
      * Main request method
      * @param {} OptionsWithUri
      */
@@ -345,7 +349,7 @@ export class TikTokScraper extends EventEmitter {
                 followAllRedirects: followAllRedirects || false,
                 simple,
                 ...(proxy.proxy && proxy.socks ? { agent: proxy.proxy } : {}),
-                ...(proxy.proxy && !proxy.socks ? { proxy: `http://${proxy.proxy}/` } : {}),
+                ...(proxy.proxy && !proxy.socks ? { proxy: `${proxy.proxy}/` } : {}),
                 ...(this.strictSSL === false ? { rejectUnauthorized: false } : {}),
                 timeout: 10000,
             } as unknown) as OptionsWithUri;
@@ -353,13 +357,18 @@ export class TikTokScraper extends EventEmitter {
 
             const simpleOptions = {
                 jar: this.cookieJar,
-                uri: `${unsignedUrl}&_signature=${signature}`,
+                uri: signature ? `${unsignedUrl}&_signature=${signature}` : (uri || this.input),
                 headers: {
                     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
+                    "connection": "Keep-Alive"
                 },
                 json: true
 
             }
+
+            !_.isNil(this.proxy) ? _.extend(simpleOptions,{proxy:this.proxy}) : ''
+          
+
 
             const session = this.sessionList[Math.floor(Math.random() * this.sessionList.length)];
             if (session) {
@@ -376,10 +385,12 @@ export class TikTokScraper extends EventEmitter {
             try {
                 let response;
                 if (simpleOptionsFlag) {
-
+                    console.log("using simple options")
+                    console.log("simple options are :%j", simpleOptions)
                     response = await rp(simpleOptions);
                 }
                 else {
+                    console.log("options are :%j", options)
                     response = await rp(options)
                 }
 
@@ -431,7 +442,7 @@ export class TikTokScraper extends EventEmitter {
         if (this.scrapeType !== 'trend' && !this.input) {
             return this.returnInitError('Missing input');
         }
-        console.log('version v2.8')
+        console.log(this.releaseVersion)
         await this.mainLoop();
 
         if (this.event) {
@@ -1191,7 +1202,6 @@ export class TikTokScraper extends EventEmitter {
      * @param {} username
      */
     public async getUserProfileInfo(): Promise<UserMetadata> {
-        console.log('running version -- v2.8')
         if (!this.input) {
             throw new Error(`Username is missing`);
         }
@@ -1488,14 +1498,14 @@ export class TikTokScraper extends EventEmitter {
             const videoUsername = videoData[1];
             const videoId = videoData[2];
 
-            const options = {
+            const requestOptions = {
                 method: 'GET',
                 uri: `https://www.tiktok.com/node/share/video/${videoUsername}/${videoId}`,
-                json: true,
+                json: true
             };
-
+            
             try {
-                const response = await this.request<VideoMetadata>(options);
+                const response = await this.request<VideoMetadata>(requestOptions,false,true);
                 if (response.statusCode === 0) {
                     // adding the generated url in the response item
                     response.itemInfo.itemStruct['longUrl']=url
@@ -1516,6 +1526,7 @@ export class TikTokScraper extends EventEmitter {
      */
 
     public async getVideoMeta(html = true): Promise<PostCollector> {
+        console.log(this.releaseVersion)
         if (!this.input) {
             throw new Error(`Url is missing`);
         }
