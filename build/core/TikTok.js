@@ -167,7 +167,9 @@ class TikTokScraper extends events_1.EventEmitter {
             const options = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({ jar: this.cookieJar, uri,
                 method }, (qs ? { qs } : {})), (body ? { body } : {})), (form ? { form } : {})), { headers: Object.assign(Object.assign(Object.assign({}, this.headers), headers), (this.csrf ? { 'x-secsdk-csrf-token': this.csrf } : {})) }), (json ? { json: true } : {})), (gzip ? { gzip: true } : {})), { resolveWithFullResponse: true, followAllRedirects: followAllRedirects || false, simple }), (proxy.proxy && proxy.socks ? { agent: proxy.proxy } : {})), (proxy.proxy && !proxy.socks ? { proxy: `${proxy.proxy}/` } : {})), (this.strictSSL === false ? { rejectUnauthorized: false } : {})), { timeout: 10000 });
             const simpleOptions = {
+                jar: this.cookieJar,
                 uri: signature ? `${unsignedUrl}&_signature=${signature}` : (uri || this.input),
+                "rejectUnauthorized": false,
                 headers: {
                     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
                     "connection": "Keep-Alive"
@@ -786,7 +788,7 @@ class TikTokScraper extends events_1.EventEmitter {
             throw new Error(`Username is missing`);
         }
         let userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36';
-        let url = `https://www.tiktok.com/node/share/user/@${this.input}?aid=1988`;
+        let url = `https://www.tiktok.com/node/share/user/@${this.input}/?aid=1988`;
         const options = {
             url: url,
             method: 'GET',
@@ -796,21 +798,13 @@ class TikTokScraper extends events_1.EventEmitter {
                 'connection': 'keep-alive',
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "accept-language": "en-US,en;q=0.9,ar;q=0.8,de;q=0.7",
-                "cache-control": "max-age=0",
-                "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"101\", \"Google Chrome\";v=\"101\"",
-                "sec-ch-ua-mobile": "?0",
-                "sec-ch-ua-platform": "\"Windows\"",
-                "sec-fetch-dest": "document",
-                "sec-fetch-mode": "navigate",
-                "sec-fetch-site": "none",
-                "sec-fetch-user": "?1",
-                "upgrade-insecure-requests": "1"
+                "Accept-Encoding": "gzip, deflate, br",
             }
         };
         !_.isNil(this.proxy) ? _.extend(options, { proxy: this.proxy }) : '';
         console.log('using proxy ...', this.proxy);
         const response = await request_promise_1.default(url, options);
-        let parsedResponse = JSON.parse(response);
+        let parsedResponse = JSON.parse(JSON.stringify(response));
         let emptyResponse = _.isEmpty(_.get(parsedResponse, 'userInfo'));
         let statusCode = _.get(parsedResponse, 'statusCode');
         if (!emptyResponse) {
