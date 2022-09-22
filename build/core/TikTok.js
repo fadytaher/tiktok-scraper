@@ -804,7 +804,13 @@ class TikTokScraper extends events_1.EventEmitter {
         !_.isNil(this.proxy) ? _.extend(options, { proxy: this.proxy }) : '';
         console.log('using proxy ...', this.proxy);
         const response = await request_promise_1.default(url, options);
-        let parsedResponse = JSON.parse(JSON.stringify(response));
+        let parsedResponse;
+        try {
+            parsedResponse = JSON.parse(response);
+        }
+        catch (e) {
+            parsedResponse = JSON.parse(JSON.stringify(response));
+        }
         let emptyResponse = _.isEmpty(_.get(parsedResponse, 'userInfo'));
         let statusCode = _.get(parsedResponse, 'statusCode');
         if (!emptyResponse) {

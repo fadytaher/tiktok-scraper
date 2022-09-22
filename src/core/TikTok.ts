@@ -1227,8 +1227,15 @@ export class TikTokScraper extends EventEmitter {
 
 
         const response = await rp(url,options);
+        let parsedResponse;
+        try{
+            parsedResponse= JSON.parse(response)
+        }
+        catch(e){
+            parsedResponse= JSON.parse(JSON.stringify(response))
+        }
+       
 
-        let parsedResponse = JSON.parse(JSON.stringify(response))
         let emptyResponse = _.isEmpty(_.get(parsedResponse, 'userInfo'))
         let statusCode = _.get(parsedResponse, 'statusCode')
         if (!emptyResponse) {
