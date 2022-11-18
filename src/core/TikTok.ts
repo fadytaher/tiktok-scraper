@@ -226,7 +226,7 @@ export class TikTokScraper extends EventEmitter {
             bad: 0,
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.0"
+        this.releaseVersion = "running version is 3.1"
     }
 
     /**
@@ -1427,17 +1427,15 @@ export class TikTokScraper extends EventEmitter {
             json: true,
         };
         try {
-            const response = await this.request<string>(options);
+            const response = await this.request<string>(options);            
             if (!response) {
                 throw new Error(`Can't extract video meta data`);
             }
-
-            const rawVideoMetadata = response
-                .split(/<script id="__NEXT_DATA__" type="application\/json" nonce="[\w-]+" crossorigin="anonymous">/)[1]
-                .split(`</script>`)[0];
-
-            const videoProps = JSON.parse(rawVideoMetadata);
-            const videoData = videoProps.props.pageProps.itemInfo.itemStruct;
+            const rawVideoMetadata_1 = response.split(/<script id="SIGI_STATE" type="application\/json">/);
+            const rawVideoMetadata_2 =  rawVideoMetadata_1[1].split(`</script>`)[0];
+            const videoProps = JSON.parse(rawVideoMetadata_2);
+            const _id = Object.keys(videoProps.ItemModule)[0];
+            const videoData = videoProps.ItemModule[_id]
             return videoData as FeedItems;
         } catch (error) {
             throw new Error(`Can't extract video metadata: ${this.input}`);
@@ -1540,7 +1538,7 @@ export class TikTokScraper extends EventEmitter {
         }
 
         let videoData = {} as any;
-        if (false) {
+        if (true) {
             console.log('getting getVideoMetadataFromHtml')
             videoData = await this.getVideoMetadataFromHtml();
         } else {
