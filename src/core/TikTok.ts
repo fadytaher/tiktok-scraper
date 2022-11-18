@@ -226,7 +226,7 @@ export class TikTokScraper extends EventEmitter {
             bad: 0,
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.1"
+        this.releaseVersion = "running version is 3.4"
     }
 
     /**
@@ -1435,7 +1435,10 @@ export class TikTokScraper extends EventEmitter {
             const rawVideoMetadata_2 =  rawVideoMetadata_1[1].split(`</script>`)[0];
             const videoProps = JSON.parse(rawVideoMetadata_2);
             const _id = Object.keys(videoProps.ItemModule)[0];
+            const user_id = Object.keys(videoProps.UserModule.users)[0];
             const videoData = videoProps.ItemModule[_id]
+            const UserData = videoProps.UserModule.users[user_id]
+            videoData["userData"] = UserData
             return videoData as FeedItems;
         } catch (error) {
             throw new Error(`Can't extract video metadata: ${this.input}`);
@@ -1552,19 +1555,19 @@ export class TikTokScraper extends EventEmitter {
             text: videoData.desc,
             createTime: videoData.createTime,
             authorMeta: {
-                id: videoData.author.id,
-                secUid: videoData.author.secUid,
-                name: videoData.author.uniqueId,
-                nickName: videoData.author.nickname,
+                id: videoData.userData.id,
+                secUid: videoData.userData.secUid,
+                name: videoData.userData.uniqueId,
+                nickName: videoData.userData.nickname,
                 following: videoData.authorStats.followingCount,
                 fans: videoData.authorStats.followerCount,
                 heart: videoData.authorStats.heartCount,
                 video: videoData.authorStats.videoCount,
                 digg: videoData.authorStats.diggCount,
-                verified: videoData.author.verified,
-                private: videoData.author.secret,
-                signature: videoData.author.signature,
-                avatar: videoData.author.avatarLarger,
+                verified: videoData.userData.verified,
+                private: videoData.userData.secret,
+                signature: videoData.userData.signature,
+                avatar: videoData.userData.avatarLarger,
             },
             musicMeta: {
                 musicId: videoData.music.id,

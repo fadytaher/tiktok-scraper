@@ -171,6 +171,7 @@ export interface VideoMetadata {
 
 export interface FeedItems {
     itemInfos:{
+    userData :Object;
     id: string;
     desc: string;
     createTime: number;
