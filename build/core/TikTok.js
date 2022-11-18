@@ -89,7 +89,7 @@ class TikTokScraper extends events_1.EventEmitter {
             bad: 0,
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.0";
+        this.releaseVersion = "running version is 3.1";
     }
     get fileDestination() {
         if (this.fileName) {
@@ -935,11 +935,11 @@ class TikTokScraper extends events_1.EventEmitter {
             if (!response) {
                 throw new Error(`Can't extract video meta data`);
             }
-            const rawVideoMetadata = response
-                .split(/<script id="__NEXT_DATA__" type="application\/json" nonce="[\w-]+" crossorigin="anonymous">/)[1]
-                .split(`</script>`)[0];
-            const videoProps = JSON.parse(rawVideoMetadata);
-            const videoData = videoProps.props.pageProps.itemInfo.itemStruct;
+            const rawVideoMetadata_1 = response.split(/<script id="SIGI_STATE" type="application\/json">/);
+            const rawVideoMetadata_2 = rawVideoMetadata_1[1].split(`</script>`)[0];
+            const videoProps = JSON.parse(rawVideoMetadata_2);
+            const _id = Object.keys(videoProps.ItemModule)[0];
+            const videoData = videoProps.ItemModule[_id];
             return videoData;
         }
         catch (error) {
@@ -1015,7 +1015,7 @@ class TikTokScraper extends events_1.EventEmitter {
             throw new Error(`Url is missing`);
         }
         let videoData = {};
-        if (false) {
+        if (true) {
             console.log('getting getVideoMetadataFromHtml');
             videoData = await this.getVideoMetadataFromHtml();
         }
