@@ -226,7 +226,7 @@ export class TikTokScraper extends EventEmitter {
             bad: 0,
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.4"
+        this.releaseVersion = "running version is 3.5"
     }
 
     /**
@@ -1423,11 +1423,9 @@ export class TikTokScraper extends EventEmitter {
     private async getVideoMetadataFromHtml(): Promise<FeedItems> {
         const options = {
             uri: this.input,
-            method: 'GET',
-            json: true,
-        };
+            method: 'GET'        };
         try {
-            const response = await this.request<string>(options);            
+            const response = await this.request<string>(options,false,true);            
             if (!response) {
                 throw new Error(`Can't extract video meta data`);
             }
@@ -1441,6 +1439,7 @@ export class TikTokScraper extends EventEmitter {
             videoData["userData"] = UserData
             return videoData as FeedItems;
         } catch (error) {
+            console.log("error", error)
             throw new Error(`Can't extract video metadata: ${this.input}`);
         }
     }

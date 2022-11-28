@@ -89,7 +89,7 @@ class TikTokScraper extends events_1.EventEmitter {
             bad: 0,
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.4";
+        this.releaseVersion = "running version is 3.5";
     }
     get fileDestination() {
         if (this.fileName) {
@@ -927,11 +927,10 @@ class TikTokScraper extends events_1.EventEmitter {
     async getVideoMetadataFromHtml() {
         const options = {
             uri: this.input,
-            method: 'GET',
-            json: true,
+            method: 'GET'
         };
         try {
-            const response = await this.request(options);
+            const response = await this.request(options, false, true);
             if (!response) {
                 throw new Error(`Can't extract video meta data`);
             }
@@ -946,6 +945,7 @@ class TikTokScraper extends events_1.EventEmitter {
             return videoData;
         }
         catch (error) {
+            console.log("error", error);
             throw new Error(`Can't extract video metadata: ${this.input}`);
         }
     }
