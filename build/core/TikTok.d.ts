@@ -1,8 +1,8 @@
 /// <reference types="node" />
-import { CookieJar } from 'request';
-import { EventEmitter } from 'events';
-import { PostCollector, TikTokConstructor, Result, MusicMetadata, UserMetadata, HashtagMetadata, Headers } from '../types';
-import { Downloader } from '../core';
+import { CookieJar } from "request";
+import { EventEmitter } from "events";
+import { PostCollector, TikTokConstructor, Result, MusicMetadata, UserMetadata, HashtagMetadata, Headers } from "../types";
+import { Downloader } from "../core";
 export declare class TikTokScraper extends EventEmitter {
     private mainHost;
     private userIdStore;
@@ -48,7 +48,7 @@ export declare class TikTokScraper extends EventEmitter {
     private store;
     cookieJar: CookieJar;
     releaseVersion: string;
-    constructor({ download, filepath, filetype, proxy, strictSSL, asyncDownload, cli, event, progress, input, number, since, type, by_user_id, store_history, historyPath, noWaterMark, useTestEndpoints, fileName, timeout, bulk, zip, test, hdVideo, webHookUrl, method, headers, verifyFp, sessionList, }: TikTokConstructor);
+    constructor({ download, filepath, filetype, proxy, strictSSL, asyncDownload, cli, event, progress, input, number, since, type, by_user_id, store_history, historyPath, noWaterMark, useTestEndpoints, fileName, timeout, bulk, zip, test, hdVideo, webHookUrl, method, headers, verifyFp, sessionList }: TikTokConstructor);
     private get fileDestination();
     private get folderDestination();
     private get getApiEndpoint();
