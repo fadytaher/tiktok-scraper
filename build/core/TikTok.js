@@ -23,6 +23,7 @@ const url_1 = require("url");
 const constant_1 = __importDefault(require("../constant"));
 const helpers_1 = require("../helpers");
 const _ = __importStar(require("lodash"));
+const HTMLParser = __importStar(require("node-html-parser"));
 const core_1 = require("../core");
 class TikTokScraper extends events_1.EventEmitter {
     constructor({ download, filepath, filetype, proxy, strictSSL = true, asyncDownload, cli = false, event = false, progress = false, input, number, since, type, by_user_id = false, store_history = false, historyPath = "", noWaterMark = false, useTestEndpoints = false, fileName = "", timeout = 0, bulk = false, zip = false, test = false, hdVideo = false, webHookUrl = "", method = "POST", headers, verifyFp = "", sessionList = [] }) {
@@ -100,7 +101,7 @@ class TikTokScraper extends events_1.EventEmitter {
             bad: 0
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.5";
+        this.releaseVersion = "running version is 3.6";
     }
     get fileDestination() {
         if (this.fileName) {
@@ -820,41 +821,42 @@ class TikTokScraper extends events_1.EventEmitter {
         }
     }
     async getUserProfileInfo() {
+        console.log("--getUserProfileInfo--", this.releaseVersion);
         if (!this.input) {
             throw new Error(`Username is missing`);
         }
         let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36";
-        let url = `https://www.tiktok.com/node/share/user/@${this.input}/?aid=1988`;
+        let url = `https://www.tiktok.com/@${this.input}?`;
         const options = {
             url: url,
             method: "GET",
             rejectUnauthorized: false,
             headers: {
                 "User-Agent": userAgent,
-                connection: "keep-alive",
-                accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                "accept-language": "en-US,en;q=0.9,ar;q=0.8,de;q=0.7",
-                "cache-control": "max-age=0",
-                "sec-ch-ua": '" Not A;Brand";v="99", "Chromium";v="101", "Google Chrome";v="101"',
-                "sec-ch-ua-mobile": "?0",
-                "sec-ch-ua-platform": '"Windows"',
-                "sec-fetch-dest": "document",
-                "sec-fetch-mode": "navigate",
-                "sec-fetch-site": "none",
-                "sec-fetch-user": "?1",
-                "upgrade-insecure-requests": "1"
+                Connection: "keep-alive",
+                accept: "*/*",
+                "accept-language": "en-US,en;q=0.9"
             }
         };
-        !_.isNil(this.proxy) ? _.extend(options, { proxy: this.proxy }) : "";
-        console.log("using proxy ...", this.proxy);
+        if (!_.isEmpty(this.proxy)) {
+            console.log("using proxy ...", this.proxy);
+            _.extend(options, { proxy: this.proxy });
+        }
+        else {
+        }
         const response = await request_promise_1.default(url, options);
-        let parsedResponse;
-        try {
-            parsedResponse = JSON.parse(response);
+        let root = HTMLParser.parse(response);
+        let appContext = root.querySelector("#SIGI_STATE");
+        if (appContext && appContext.text) {
+            let _json = JSON.parse(appContext.text).UserModule;
+            let profileData = Object.values(_.get(_json, `users`))[0];
+            let statsData = Object.values(_.get(_json, `stats`))[0];
+            let data = { user: {}, stats: {}, shareMeta: {} };
+            _.assign(data, { user: profileData });
+            _.assign(data, { stats: statsData });
+            return data;
         }
-        catch (e) {
-            parsedResponse = JSON.parse(JSON.stringify(response));
-        }
+        let parsedResponse = JSON.parse(response);
         let emptyResponse = _.isEmpty(_.get(parsedResponse, "userInfo"));
         let statusCode = _.get(parsedResponse, "statusCode");
         if (!emptyResponse) {
