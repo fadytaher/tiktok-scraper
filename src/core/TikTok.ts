@@ -1171,6 +1171,7 @@ export class TikTokScraper extends EventEmitter {
     }
   }
 
+  // scrapeData function
   private async scrapeData<T>(qs: RequestQuery): Promise<T> {
     this.storeValue =
       this.scrapeType === "trend"
@@ -1306,6 +1307,7 @@ export class TikTokScraper extends EventEmitter {
 
     try {
       const response = await this.getUserProfileInfo();
+      console.log(response)
       this.idStore = response.user.secUid;
       this.userIdStore = response.user.id;
       return {

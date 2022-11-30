@@ -804,6 +804,7 @@ class TikTokScraper extends events_1.EventEmitter {
         }
         try {
             const response = await this.getUserProfileInfo();
+            console.log(response);
             this.idStore = response.user.secUid;
             this.userIdStore = response.user.id;
             return {
