@@ -368,6 +368,7 @@ export class TikTokScraper extends EventEmitter {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       const proxy = this.getProxy;
+      let response;
       const options = ({
         jar: this.cookieJar,
         uri,
@@ -409,7 +410,14 @@ export class TikTokScraper extends EventEmitter {
       if (this.scrapeType === "user") {
         console.log("applying user feed special handling");
         simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
-      }
+        response = await rp(simpleOptions);
+        // Get data from HTML content
+        let root = HTMLParser.parse(response);
+        let appContext = root.querySelector("#SIGI_STATE");
+        console.log(appContext)
+        if (appContext && appContext.text) {
+          let _json = JSON.parse(appContext.text).ItemModule;
+          }
 
       if (!_.isEmpty(this.proxy)) {
         _.extend(simpleOptions, { proxy: this.proxy });
@@ -437,7 +445,7 @@ export class TikTokScraper extends EventEmitter {
       }
 
       try {
-        let response;
+        
         if (simpleOptionsFlag) {
           console.log("using simple options");
           console.log("simple options are :%j", simpleOptions);
@@ -1314,7 +1322,6 @@ export class TikTokScraper extends EventEmitter {
 
     try {
       const response = await this.getUserProfileInfo();
-      console.log(response);
       this.idStore = response.user.secUid;
       this.userIdStore = response.user.id;
       return {
@@ -1385,8 +1392,6 @@ export class TikTokScraper extends EventEmitter {
       _.assign(data, { stats: statsData });
       return data;
     }
-
-    console.log(response);
     let parsedResponse = JSON.parse(response);
     let emptyResponse = _.isEmpty(_.get(parsedResponse, "userInfo"));
     let statusCode = _.get(parsedResponse, "statusCode");
