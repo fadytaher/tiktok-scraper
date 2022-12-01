@@ -202,6 +202,10 @@ class TikTokScraper extends events_1.EventEmitter {
                 },
                 json: true
             };
+            if (this.scrapeType === "user") {
+                console.log("applying user feed special handling");
+                simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
+            }
             if (!_.isEmpty(this.proxy)) {
                 _.extend(simpleOptions, { proxy: this.proxy });
             }
@@ -845,7 +849,7 @@ class TikTokScraper extends events_1.EventEmitter {
         }
         else {
         }
-        const response = await request_promise_1.default(url, options);
+        const response = await request_promise_1.default(options);
         let root = HTMLParser.parse(response);
         let appContext = root.querySelector("#SIGI_STATE");
         if (appContext && appContext.text) {
@@ -857,6 +861,7 @@ class TikTokScraper extends events_1.EventEmitter {
             _.assign(data, { stats: statsData });
             return data;
         }
+        console.log(response);
         let parsedResponse = JSON.parse(response);
         let emptyResponse = _.isEmpty(_.get(parsedResponse, "userInfo"));
         let statusCode = _.get(parsedResponse, "statusCode");

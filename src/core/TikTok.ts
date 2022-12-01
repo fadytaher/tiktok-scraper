@@ -237,7 +237,7 @@ export class TikTokScraper extends EventEmitter {
       bad: 0
     };
     this.store = [];
-    this.releaseVersion = "running version is 3.6";
+    this.releaseVersion = "running version is 3.7";
   }
 
   /**
@@ -342,6 +342,7 @@ export class TikTokScraper extends EventEmitter {
   }
 
   /**
+   * request function
    * core request function
    * Main request method
    * @param {} OptionsWithUri
@@ -403,6 +404,12 @@ export class TikTokScraper extends EventEmitter {
         },
         json: true
       };
+
+      //special handling for user feed
+      if (this.scrapeType === "user") {
+        console.log("applying user feed special handling");
+        simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
+      }
 
       if (!_.isEmpty(this.proxy)) {
         _.extend(simpleOptions, { proxy: this.proxy });
@@ -1307,7 +1314,7 @@ export class TikTokScraper extends EventEmitter {
 
     try {
       const response = await this.getUserProfileInfo();
-      console.log(response)
+      console.log(response);
       this.idStore = response.user.secUid;
       this.userIdStore = response.user.id;
       return {
@@ -1337,7 +1344,7 @@ export class TikTokScraper extends EventEmitter {
    * @param {} username
    */
   public async getUserProfileInfo(): Promise<UserMetadata> {
-    console.log("--getUserProfileInfo--", this.releaseVersion)
+    console.log("--getUserProfileInfo--", this.releaseVersion);
     if (!this.input) {
       throw new Error(`Username is missing`);
     }
@@ -1361,10 +1368,9 @@ export class TikTokScraper extends EventEmitter {
       console.log("using proxy ...", this.proxy);
       _.extend(options, { proxy: this.proxy });
     } else {
-
     }
 
-    const response = await rp(url, options);
+    const response = await rp(options);
     // Get data from HTML content
     let root = HTMLParser.parse(response);
     let appContext = root.querySelector("#SIGI_STATE");
@@ -1380,6 +1386,7 @@ export class TikTokScraper extends EventEmitter {
       return data;
     }
 
+    console.log(response);
     let parsedResponse = JSON.parse(response);
     let emptyResponse = _.isEmpty(_.get(parsedResponse, "userInfo"));
     let statusCode = _.get(parsedResponse, "statusCode");
