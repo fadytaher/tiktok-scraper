@@ -414,10 +414,11 @@ export class TikTokScraper extends EventEmitter {
         // Get data from HTML content
         let root = HTMLParser.parse(response);
         let appContext = root.querySelector("#SIGI_STATE");
-        console.log(appContext)
+        console.log(appContext);
         if (appContext && appContext.text) {
-          let _json = JSON.parse(appContext.text).ItemModule;
-          }
+          let _json = JSON.parse(appContext.text).UserModule;
+        }
+      }
 
       if (!_.isEmpty(this.proxy)) {
         _.extend(simpleOptions, { proxy: this.proxy });
@@ -445,7 +446,6 @@ export class TikTokScraper extends EventEmitter {
       }
 
       try {
-        
         if (simpleOptionsFlag) {
           console.log("using simple options");
           console.log("simple options are :%j", simpleOptions);

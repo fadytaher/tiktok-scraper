@@ -101,7 +101,7 @@ class TikTokScraper extends events_1.EventEmitter {
             bad: 0
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.6";
+        this.releaseVersion = "running version is 3.7";
     }
     get fileDestination() {
         if (this.fileName) {
@@ -188,6 +188,7 @@ class TikTokScraper extends events_1.EventEmitter {
     request({ uri, method, qs, body, form, headers, json, gzip, followAllRedirects, simple = true }, bodyOnly = true, simpleOptionsFlag = false, unsignedUrl = "", signature = "") {
         return new Promise(async (resolve, reject) => {
             const proxy = this.getProxy;
+            let response;
             const options = Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({ jar: this.cookieJar, uri,
                 method }, (qs ? { qs } : {})), (body ? { body } : {})), (form ? { form } : {})), { headers: Object.assign(Object.assign(Object.assign({}, this.headers), headers), (this.csrf ? { "x-secsdk-csrf-token": this.csrf } : {})) }), (json ? { json: true } : {})), (gzip ? { gzip: true } : {})), { resolveWithFullResponse: true, followAllRedirects: followAllRedirects || false, simple }), (proxy.proxy && proxy.socks ? { agent: proxy.proxy } : {})), (proxy.proxy && !proxy.socks ? { proxy: `${proxy.proxy}/` } : {})), (this.strictSSL === false ? { rejectUnauthorized: false } : {})), { timeout: 10000 });
             const simpleOptions = {
@@ -205,6 +206,13 @@ class TikTokScraper extends events_1.EventEmitter {
             if (this.scrapeType === "user") {
                 console.log("applying user feed special handling");
                 simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
+                response = await request_promise_1.default(simpleOptions);
+                let root = HTMLParser.parse(response);
+                let appContext = root.querySelector("#SIGI_STATE");
+                console.log(appContext);
+                if (appContext && appContext.text) {
+                    let _json = JSON.parse(appContext.text).UserModule;
+                }
             }
             if (!_.isEmpty(this.proxy)) {
                 _.extend(simpleOptions, { proxy: this.proxy });
@@ -221,7 +229,6 @@ class TikTokScraper extends events_1.EventEmitter {
                 this.cookieJar.setCookie(`tt_webid_v2=69${helpers_1.makeid(17)}; Domain=tiktok.com; Path=/; Secure; hostOnly=false`, "https://tiktok.com");
             }
             try {
-                let response;
                 if (simpleOptionsFlag) {
                     console.log("using simple options");
                     console.log("simple options are :%j", simpleOptions);
@@ -808,7 +815,6 @@ class TikTokScraper extends events_1.EventEmitter {
         }
         try {
             const response = await this.getUserProfileInfo();
-            console.log(response);
             this.idStore = response.user.secUid;
             this.userIdStore = response.user.id;
             return {
@@ -861,7 +867,6 @@ class TikTokScraper extends events_1.EventEmitter {
             _.assign(data, { stats: statsData });
             return data;
         }
-        console.log(response);
         let parsedResponse = JSON.parse(response);
         let emptyResponse = _.isEmpty(_.get(parsedResponse, "userInfo"));
         let statusCode = _.get(parsedResponse, "statusCode");
