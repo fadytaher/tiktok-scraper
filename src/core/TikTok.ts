@@ -416,7 +416,7 @@ export class TikTokScraper extends EventEmitter {
         let appContext = root.querySelector("#SIGI_STATE");
         console.log(appContext);
         if (appContext && appContext.text) {
-          let _json = JSON.parse(appContext.text).UserModule;
+          let _json = JSON.parse(appContext.text).ItemModule;
         }
       }
 
