@@ -206,12 +206,29 @@ class TikTokScraper extends events_1.EventEmitter {
             if (this.scrapeType === "user") {
                 console.log("applying user feed special handling");
                 simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
-                response = await request_promise_1.default(simpleOptions);
+                let response = await request_promise_1.default(simpleOptions);
                 let root = HTMLParser.parse(response);
                 let appContext = root.querySelector("#SIGI_STATE");
-                console.log(appContext);
                 if (appContext && appContext.text) {
-                    let _json = JSON.parse(appContext.text).ItemModule;
+                    let itemModule = JSON.parse(appContext.text).ItemModule;
+                    let itemList = JSON.parse(appContext.text).ItemList;
+                    let userModule = JSON.parse(appContext.text).UserModule;
+                    let data = Object.keys(itemModule).map(k => {
+                        let i = itemModule[k];
+                        let authorInfos = userModule.users[Object.keys(userModule.users)[0]];
+                        let authorStats = userModule.stats[Object.keys(userModule.stats)[0]];
+                        return {
+                            itemInfos: i,
+                            authorInfos,
+                            authorStats
+                        };
+                    });
+                    resolve({
+                        cursor: itemList['user-post'].cursor,
+                        hasMore: itemList['user-post'].hasMore,
+                        statusCode: itemList['user-post'].statusCode,
+                        itemList: data
+                    });
                 }
             }
             if (!_.isEmpty(this.proxy)) {
@@ -557,8 +574,13 @@ class TikTokScraper extends events_1.EventEmitter {
         if (this.scrapeType == "user") {
             if (this.noDuplicates.indexOf(post.itemInfos.id) === -1) {
                 this.noDuplicates.push(post.itemInfos.id);
-                item = Object.assign(Object.assign({ id: post.itemInfos.id, secretID: post.itemInfos.id, text: post.itemInfos.text, createTime: post.itemInfos.createTime, authorMeta: {
-                        id: post.authorInfos.userId,
+                item = Object.assign(Object.assign({
+                    id: post.itemInfos.id,
+                    secretID: post.itemInfos.id,
+                    text: post.itemInfos.text,
+                    createTime: post.itemInfos.createTime,
+                    authorMeta: {
+                        id: post.authorId,
                         secUid: post.authorInfos.secUid,
                         name: post.authorInfos.uniqueId,
                         nickName: post.authorInfos.nickName,
@@ -570,7 +592,8 @@ class TikTokScraper extends events_1.EventEmitter {
                         heart: post.authorStats.heartCount,
                         video: post.authorStats.videoCount,
                         digg: post.authorStats.diggCount
-                    } }, (post.music
+                    }
+                }, post.music
                     ? {
                         musicMeta: {
                             musicId: post.music.id,
@@ -585,27 +608,43 @@ class TikTokScraper extends events_1.EventEmitter {
                             duration: post.music.duration
                         }
                     }
-                    : {})), { covers: {
-                        default: post.itemInfos.covers,
-                        origin: post.itemInfos.coversOrigin,
-                        dynamic: post.itemInfos.coversDynamic
-                    }, imageUrl: post.itemInfos.covers[0], webVideoUrl: `https://www.tiktok.com/@${post.authorInfos.uniqueId}/video/${post.itemInfos.id}`, videoUrl: post.itemInfos.video.urls, videoUrlNoWaterMark: "", videoApiUrlNoWaterMark: "", videoMeta: {
-                        height: post.itemInfos.video.videoMeta.height,
-                        width: post.itemInfos.video.videoMeta.width,
-                        duration: post.itemInfos.video.videoMeta.duration
-                    }, diggCount: post.itemInfos.diggCount, shareCount: post.itemInfos.shareCount, playCount: post.itemInfos.playCount, commentCount: post.itemInfos.commentCount, downloaded: false, mentions: post.itemInfos.text.match(/(@\w+)/g) || [], hashtags: post.itemInfos.challengeInfoList
+                    : {}), {
+                    covers: {
+                        default: post.itemInfos.video.cover,
+                        origin: post.itemInfos.video.originCover,
+                        dynamic: post.itemInfos.video.dynamicCover
+                    },
+                    imageUrl: post.itemInfos.video.cover,
+                    webVideoUrl: `https://www.tiktok.com/@${post.authorInfos.uniqueId}/video/${post.itemInfos.id}`,
+                    videoUrl: post.itemInfos.video.urls,
+                    videoUrlNoWaterMark: "",
+                    videoApiUrlNoWaterMark: "",
+                    videoMeta: {
+                        height: post.itemInfos.video.height,
+                        width: post.itemInfos.video.width,
+                        duration: post.itemInfos.video.duration
+                    },
+                    diggCount: post.itemInfos.stats.diggCount,
+                    shareCount: post.itemInfos.stats.shareCount,
+                    playCount: post.itemInfos.stats.playCount,
+                    commentCount: post.itemInfos.stats.commentCount,
+                    downloaded: false,
+                    mentions: post.itemInfos.desc.match(/(@\w+)/g) || [],
+                    hashtags: post.itemInfos.challengeInfoList
                         ? post.itemInfos.challengeInfoList.map(({ id, title, desc, coverLarger }) => ({
                             id,
                             name: title,
                             title: desc,
                             cover: coverLarger
                         }))
-                        : [], effectStickers: post.itemInfos.stickerTextList
+                        : [],
+                    effectStickers: post.itemInfos.stickerTextList
                         ? post.itemInfos.stickerTextList.map(({ ID, name }) => ({
                             id: ID,
                             name
                         }))
-                        : [] });
+                        : []
+                });
             }
         }
         if (this.scrapeType == "trend") {
