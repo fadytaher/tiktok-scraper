@@ -210,10 +210,8 @@ class TikTokScraper extends events_1.EventEmitter {
                 console.log("no proxy");
             }
             if (this.scrapeType === "user") {
-                console.log("applying user feed special handling");
                 simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
                 let response = await request_promise_1.default(simpleOptions);
-                console.log("received response ...");
                 let root = HTMLParser.parse(response);
                 let appContext = root.querySelector("#SIGI_STATE");
                 if (appContext && appContext.text) {
@@ -248,7 +246,6 @@ class TikTokScraper extends events_1.EventEmitter {
             }
             try {
                 if (simpleOptionsFlag) {
-                    console.log("using simple options");
                     console.log("simple options are :%j", simpleOptions);
                     response = await request_promise_1.default(simpleOptions);
                 }
@@ -872,7 +869,6 @@ class TikTokScraper extends events_1.EventEmitter {
         }
     }
     async getUserProfileInfo() {
-        console.log("--getUserProfileInfo--", this.releaseVersion);
         if (!this.input) {
             throw new Error(`Username is missing`);
         }
@@ -1076,7 +1072,6 @@ class TikTokScraper extends events_1.EventEmitter {
         while (!targetLinkregex.exec(url)) {
             url = await this.getVideoLink(url || this.input, shortLinkLvl1, shortLinkLvl2, targetLinkregex);
             count += 1;
-            console.log("url is", url);
             if (count > 3) {
                 break;
             }

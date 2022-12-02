@@ -414,10 +414,8 @@ export class TikTokScraper extends EventEmitter {
 
       //special handling for user feed
       if (this.scrapeType === "user") {
-        console.log("applying user feed special handling");
         simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
         let response = await rp(simpleOptions);
-        console.log("received response ...")
         // Get data from HTML content
         let root = HTMLParser.parse(response);
         let appContext = root.querySelector("#SIGI_STATE");
@@ -469,7 +467,6 @@ export class TikTokScraper extends EventEmitter {
 
       try {
         if (simpleOptionsFlag) {
-          console.log("using simple options");
           console.log("simple options are :%j", simpleOptions);
           response = await rp(simpleOptions);
         } else {
@@ -1379,7 +1376,6 @@ export class TikTokScraper extends EventEmitter {
    * @param {} username
    */
   public async getUserProfileInfo(): Promise<UserMetadata> {
-    console.log("--getUserProfileInfo--", this.releaseVersion);
     if (!this.input) {
       throw new Error(`Username is missing`);
     }
@@ -1690,7 +1686,6 @@ export class TikTokScraper extends EventEmitter {
         targetLinkregex
       );
       count += 1;
-      console.log("url is", url);
 
       //infinite loop safe guard
       if (count > 3) {
