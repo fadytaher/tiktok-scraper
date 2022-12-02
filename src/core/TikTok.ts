@@ -406,11 +406,18 @@ export class TikTokScraper extends EventEmitter {
         json: true
       };
 
+      if (!_.isEmpty(this.proxy)) {
+        _.extend(simpleOptions, { proxy: this.proxy });
+      } else {
+        console.log("no proxy");
+      }
+
       //special handling for user feed
       if (this.scrapeType === "user") {
         console.log("applying user feed special handling");
         simpleOptions.uri = `https://www.tiktok.com/@${this.input}`;
         let response = await rp(simpleOptions);
+        console.log("received response ...")
         // Get data from HTML content
         let root = HTMLParser.parse(response);
         let appContext = root.querySelector("#SIGI_STATE");
@@ -439,11 +446,7 @@ export class TikTokScraper extends EventEmitter {
         }
       }
 
-      if (!_.isEmpty(this.proxy)) {
-        _.extend(simpleOptions, { proxy: this.proxy });
-      } else {
-        console.log("no proxy");
-      }
+     
 
       const session = this.sessionList[
         Math.floor(Math.random() * this.sessionList.length)
