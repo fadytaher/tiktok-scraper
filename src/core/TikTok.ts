@@ -986,13 +986,13 @@ export class TikTokScraper extends EventEmitter {
             {
               id: post.itemInfos.id,
               secretID: post.itemInfos.id,
-              text: post.itemInfos.text,
+              text: post.itemInfos.desc,
               createTime: post.itemInfos.createTime,
               authorMeta: {
-                id: post.authorId,
+                id: post.authorInfos.id,
                 secUid: post.authorInfos.secUid,
                 name: post.authorInfos.uniqueId,
-                nickName: post.authorInfos.nickName,
+                nickName: post.authorInfos.nickname,
                 verified: post.authorInfos.verified,
                 signature: post.authorInfos.signature,
                 avatar: post.authorInfos.avatarLarger,
@@ -1028,7 +1028,7 @@ export class TikTokScraper extends EventEmitter {
             },
             imageUrl: post.itemInfos.video.cover,
             webVideoUrl: `https://www.tiktok.com/@${post.authorInfos.uniqueId}/video/${post.itemInfos.id}`,
-            videoUrl: post.itemInfos.video.urls,
+            videoUrl:  `https://www.tiktok.com/@${post.authorInfos.uniqueId}/video/${post.itemInfos.id}`,
             videoUrlNoWaterMark: "",
             videoApiUrlNoWaterMark: "",
             videoMeta: {
