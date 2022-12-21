@@ -237,7 +237,7 @@ export class TikTokScraper extends EventEmitter {
       bad: 0
     };
     this.store = [];
-    this.releaseVersion = "running version is 3.7";
+    this.releaseVersion = "running version is 3.8";
   }
 
   /**

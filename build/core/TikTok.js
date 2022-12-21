@@ -101,7 +101,7 @@ class TikTokScraper extends events_1.EventEmitter {
             bad: 0
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.7";
+        this.releaseVersion = "running version is 3.8";
     }
     get fileDestination() {
         if (this.fileName) {
