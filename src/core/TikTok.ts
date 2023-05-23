@@ -237,7 +237,7 @@ export class TikTokScraper extends EventEmitter {
       bad: 0
     };
     this.store = [];
-    this.releaseVersion = "running version is 3.8";
+    this.releaseVersion = "running version is 3.9";
   }
 
   /**
@@ -1371,6 +1371,10 @@ export class TikTokScraper extends EventEmitter {
     }
   }
 
+
+  public removeFirstAndLast = (str) => {
+      return str.slice(2, -2);
+  };
   /**
    * Get user profile information
    * @param {} username
@@ -1401,13 +1405,24 @@ export class TikTokScraper extends EventEmitter {
     } else {
     }
 
+    console.log("requesting data ...")
     const response = await rp(options);
     // Get data from HTML content
     let root = HTMLParser.parse(response);
     let appContext = root.querySelector("#SIGI_STATE");
 
     if (appContext && appContext.text) {
-      let _json = JSON.parse(appContext.text).UserModule;
+
+      let _json
+      try{
+        _json= JSON.parse(appContext.text).UserModule;
+      }
+      catch(e){
+      const regexPattern = /UserModule([\s\S]*?)Userpage/i;
+      const result = appContext.text.match(regexPattern) || '';
+      const cleaned = this.removeFirstAndLast(result[1])
+      _json = JSON.parse(cleaned)
+      }
 
       let profileData = Object.values(_.get(_json, `users`))[0];
       let statsData = Object.values(_.get(_json, `stats`))[0];
