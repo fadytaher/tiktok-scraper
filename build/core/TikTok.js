@@ -29,6 +29,9 @@ class TikTokScraper extends events_1.EventEmitter {
     constructor({ download, filepath, filetype, proxy, strictSSL = true, asyncDownload, cli = false, event = false, progress = false, input, number, since, type, by_user_id = false, store_history = false, historyPath = "", noWaterMark = false, useTestEndpoints = false, fileName = "", timeout = 0, bulk = false, zip = false, test = false, hdVideo = false, webHookUrl = "", method = "POST", headers, verifyFp = "", sessionList = [] }) {
         super();
         this.storeValue = "";
+        this.removeFirstAndLast = (str, s = 2, e = -2) => {
+            return str.slice(s, e);
+        };
         this.userIdStore = "";
         this.verifyFp = verifyFp;
         this.mainHost = useTestEndpoints
@@ -101,7 +104,7 @@ class TikTokScraper extends events_1.EventEmitter {
             bad: 0
         };
         this.store = [];
-        this.releaseVersion = "running version is 3.7";
+        this.releaseVersion = "running version is 3.9";
     }
     get fileDestination() {
         if (this.fileName) {
@@ -215,9 +218,36 @@ class TikTokScraper extends events_1.EventEmitter {
                 let root = HTMLParser.parse(response);
                 let appContext = root.querySelector("#SIGI_STATE");
                 if (appContext && appContext.text) {
-                    let itemModule = JSON.parse(appContext.text).ItemModule;
-                    let itemList = JSON.parse(appContext.text).ItemList;
-                    let userModule = JSON.parse(appContext.text).UserModule;
+                    let _json;
+                    let result;
+                    let cleaned;
+                    let userModule;
+                    let itemList;
+                    let itemModule;
+                    let regexPattern;
+                    let text = appContext.text.replace("\"#SkincareTips\"", "\\\"#SkincareTips\\\"");
+                    let jsono = JSON.parse(text);
+                    try {
+                        itemModule = jsono.ItemModule;
+                        itemList = jsono.ItemList;
+                        userModule = jsono.UserModule;
+                    }
+                    catch (e) {
+                        regexPattern = /UserModule([\s\S]*?)Userpage/i;
+                        result = appContext.text.match(regexPattern) || '';
+                        cleaned = this.removeFirstAndLast(result[1], 2, -2);
+                        userModule = JSON.parse(cleaned);
+                        regexPattern = /itemModule([\s\S]*?)UserModule/i;
+                        result = appContext.text.match(regexPattern) || '';
+                        cleaned = this.removeFirstAndLast(result[1], 2, -2).replace("\"#SkincareTips\"", "\\\"#SkincareTips\\\"");
+                        _json = JSON.parse(cleaned);
+                        itemModule = _json.itemModule;
+                        regexPattern = /"ItemList"([\s\S]*?)itemModule/i;
+                        result = appContext.text.match(regexPattern) || '';
+                        cleaned = this.removeFirstAndLast(result[1], 2, -2);
+                        _json = JSON.parse(cleaned);
+                        itemList = _json.ItemList;
+                    }
                     let data = Object.keys(itemModule).map(k => {
                         let i = itemModule[k];
                         let authorInfos = userModule.users[Object.keys(userModule.users)[0]];
@@ -891,11 +921,21 @@ class TikTokScraper extends events_1.EventEmitter {
         }
         else {
         }
+        console.log("requesting data ...");
         const response = await request_promise_1.default(options);
         let root = HTMLParser.parse(response);
         let appContext = root.querySelector("#SIGI_STATE");
         if (appContext && appContext.text) {
-            let _json = JSON.parse(appContext.text).UserModule;
+            let _json;
+            try {
+                _json = JSON.parse(appContext.text).UserModule;
+            }
+            catch (e) {
+                const regexPattern = /UserModule([\s\S]*?)Userpage/i;
+                const result = appContext.text.match(regexPattern) || '';
+                const cleaned = this.removeFirstAndLast(result[1]);
+                _json = JSON.parse(cleaned);
+            }
             let profileData = Object.values(_.get(_json, `users`))[0];
             let statsData = Object.values(_.get(_json, `stats`))[0];
             let data = { user: {}, stats: {}, shareMeta: {} };
@@ -1124,11 +1164,6 @@ class TikTokScraper extends events_1.EventEmitter {
                 secUid: videoData.userData.secUid,
                 name: videoData.userData.uniqueId,
                 nickName: videoData.userData.nickname,
-                following: videoData.authorStats.followingCount,
-                fans: videoData.authorStats.followerCount,
-                heart: videoData.authorStats.heartCount,
-                video: videoData.authorStats.videoCount,
-                digg: videoData.authorStats.diggCount,
                 verified: videoData.userData.verified,
                 private: videoData.userData.secret,
                 signature: videoData.userData.signature,
