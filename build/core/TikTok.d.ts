@@ -76,7 +76,7 @@ export declare class TikTokScraper extends EventEmitter {
     private getMusicFeedQuery;
     private getHashTagId;
     private getUserId;
-    removeFirstAndLast: (str: any) => any;
+    removeFirstAndLast: (str: any, s?: number, e?: number) => any;
     getUserProfileInfo(): Promise<UserMetadata>;
     getHashtagInfo(): Promise<HashtagMetadata>;
     getMusicInfo(): Promise<MusicMetadata>;

@@ -419,10 +419,48 @@ export class TikTokScraper extends EventEmitter {
         // Get data from HTML content
         let root = HTMLParser.parse(response);
         let appContext = root.querySelector("#SIGI_STATE");
+
+
+        //change here
         if (appContext && appContext.text) {
-          let itemModule = JSON.parse(appContext.text).ItemModule;
-          let itemList = JSON.parse(appContext.text).ItemList;
-          let userModule = JSON.parse(appContext.text).UserModule;
+
+
+          let _json
+          let result
+          let cleaned
+          let userModule
+          let itemList
+          let itemModule
+          let regexPattern
+
+          let text = appContext.text.replace("\"#SkincareTips\"","\\\"#SkincareTips\\\"")
+          let jsono = JSON.parse(text)
+          
+          try{
+             itemModule = jsono.ItemModule;
+             itemList = jsono.ItemList;
+             userModule =jsono.UserModule;
+          }
+          catch(e){
+           regexPattern = /UserModule([\s\S]*?)Userpage/i;
+           result = appContext.text.match(regexPattern) || '';
+           cleaned = this.removeFirstAndLast(result[1], 2, -2)
+           userModule = JSON.parse(cleaned)
+
+
+          regexPattern = /itemModule([\s\S]*?)UserModule/i;
+          result = appContext.text.match(regexPattern) || '';
+          cleaned = this.removeFirstAndLast(result[1],2,-2).replace("\"#SkincareTips\"","\\\"#SkincareTips\\\"")
+          _json = JSON.parse(cleaned)
+          itemModule = _json.itemModule;
+
+          // this regex need to be checked and fixed
+          regexPattern = /"ItemList"([\s\S]*?)itemModule/i;
+          result = appContext.text.match(regexPattern) || '';
+          cleaned = this.removeFirstAndLast(result[1],2,-2)
+          _json = JSON.parse(cleaned)
+          itemList = _json.ItemList;
+          }
           let data = Object.keys(itemModule).map(k => {
             let i = itemModule[k];
             let authorInfos =
@@ -1372,8 +1410,8 @@ export class TikTokScraper extends EventEmitter {
   }
 
 
-  public removeFirstAndLast = (str) => {
-      return str.slice(2, -2);
+  public removeFirstAndLast = (str, s=2, e=-2) => {
+      return str.slice(s, e);
   };
   /**
    * Get user profile information
